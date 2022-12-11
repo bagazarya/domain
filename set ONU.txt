@@ -1,0 +1,99 @@
+conf t
+interface gpon-olt_1/2/2
+onu 30 type ZTEG-F609 sn ZTEGCA37B5B1
+exit
+interface gpon-onu_1/2/3:74
+name 51254_TITIN_ROHETIN
+description  ODP040_TAMANASRI
+tcont 1 profile 8M
+gemport 1 tcont 1
+gemport 1 traffic-limit upstream 20M downstream 20M
+service-port 1 vport 1 user-vlan 411 vlan 411
+exit
+pon-onu-mng gpon-onu_1/2/3:74
+service 1 gemport 1 vlan 411
+wan-ip mode pppoe username 51254_TITIN_ROHETIN@teralink password teralinkgo1254 vlan-profile tera411 host 1
+security-mgmt 212 state enable mode forward protocol web
+exit
+
+
+interface gpon-onu_1/2/3:39
+  name bts_TAMANMANDIRI
+  description pemalang
+  tcont 1 profile 100M
+  gemport 1 tcont 1
+  service-port 1 vport 1 user-vlan 400 vlan 400 
+  service-port 2 vport 1 user-vlan 411 vlan 411 
+!
+pon-onu-mng gpon-onu_1/2/3:39
+  service 1 gemport 1 vlan 400
+  service 2 gemport 1 vlan 411
+  wan-ip 1 mode pppoe username tes password tera vlan-profile tera411 host 1
+  vlan port eth_0/1 mode tag vlan 400
+  security-mgmt 212 state enable mode forward protocol web sho
+!
+
+
+show pon power attenuation gpon-onu_1/2/2:1
+
+show gpon onu detail-info gpon-onu_1/2/2:1
+
+show pon onu uncfg
+
+ZXAN(config)#interface gei_1/4/1
+ZXAN(config-if)#swi
+ZXAN(config-if)#switchport vl
+ZXAN(config-if)#switchport vlan 411 tag
+ZXAN(config-if)#!
+ZXAN(config)#inter
+ZXAN(config)#interface x
+ZXAN(config)#interface xgei_1/4/2
+ZXAN(config-if)#swi
+ZXAN(config-if)#switchport vl 
+ZXAN(config-if)#switchport vlan 411 tag
+ZXAN(config-if)#!
+ZXAN(config)#in
+ZXAN(config)#interface ge
+ZXAN(config)#interface gei_1/4/3
+ZXAN(config-if)#swi
+ZXAN(config-if)#switchport vlan 411 tag
+ZXAN(config-if)#!
+ZXAN(config)#pon
+ZXAN(config-pon)#  onu-type ALL-ONU gpon description 4ETH,2POTS,WIFI
+
+
+conf t
+interface gpon-olt_1/2/6
+no onu 2
+end
+
+show gpon onu state gpon-olt_1/2/8
+show gpon onu  by sn ZTEGCC5C652E
+
+wan-ip 1 mode pppoe username T_272_ABDUL_KHOLIK@teralink password gojavanet272 vlan-profile Internet host 1
+
+onu profile vlan netmedia143 tag-mode tag cvlan 143 pri 7
+
+
+script
+==========================================
+config t
+gpon
+profile tcont teralink type 1 fixed 1000000
+profile tcont 5M type 2 assured 5000
+profile tcont 10M type 3 assured 5000 maximum 10000
+profile tcont 15M type 4 maximum 15000
+profile tcont 20M type 5 fixed 2000 assured 5000 maximum 20000
+exit
+exit
+write
+
+backup
+file upload cfg startrun.dat ftp ipaddress 10.55.55.1 path /flash user admin password javanetgo2018
+
+static wan-ip
+con t
+gpon
+onu profile ip static1 gateway 192.168.29.5 primary-dns 8.8.8.8
+exit
+wan-ip mode static ip-profile static1 ip-address 192.168.29.6 mask 255.255.255.254 vlan-profile corporate host 1
